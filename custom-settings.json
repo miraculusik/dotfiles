@@ -1,0 +1,29 @@
+{
+  "themeScheme": "dark",
+  "theme": {
+    "dark": {
+      "main": "#21202e",
+      "red": "#eb6f92",
+      "green": "#9ccfd8",
+      "blue": "#31748f",
+      "yellow": "#f6c177",
+      "magenta": "#c4a7e7",
+      "cyan": "#ebbcba"
+    },
+    "barHeight": "22px",
+    "barOpacity": "0.85",
+    "fontFamily": "SauceCodePro Nerd Font",
+    "fontSize": "13px"
+  },
+  "dataWidgets": {
+    "network": {
+      "enabled": false
+    },
+    "input": {
+      "enabled": false
+    },
+    "output": {
+      "enabled": false
+    }
+  }
+}

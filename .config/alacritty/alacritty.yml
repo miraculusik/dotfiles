@@ -1,0 +1,83 @@
+#import:
+#  - /path/to/alacritty.yml
+env:
+  TERM: xterm-256color
+
+window:
+  decorations: 'buttonless'
+  dimensions:
+    columns: 110
+    lines: 32
+  opacity: 0.75
+  dynamic_title: true
+  dynamic_padding: false
+  padding:
+    x: 0
+    y: 0
+
+font:
+  normal:
+    family: SauceCodePro Nerd Font
+    style: Regular
+  italic:
+    family: SauceCodePro Nerd Font
+    style: Italic
+  bold:
+    family: SauceCodePro Nerd Font
+    style: Bold
+  bold_italic:
+    family: SauceCodePro Nerd Font
+    style: Bold Italic
+
+  size: 16.0
+
+draw_bold_text_with_bright_colors: false
+
+colors: # rose-pine
+  primary:
+    background: '#191724'
+    foreground: '#e0def4'
+  cursor:
+    text: '#e0def4'
+    cursor: '#eb6f92'
+  vi_mode_cursor:
+    text: '#e0def4'
+    cursor: '#31748f'
+  line_indicator:
+    foreground: None
+    background: None
+  selection:
+    text: '#e0def4'
+    background: '#2a2837'
+  normal:
+    black: '#26233a'
+    red: '#eb6f92'
+    green: '#9ccfd8'
+    yellow: '#f6c177'
+    blue: '#31748f'
+    magenta: '#c4a7e7'
+    cyan: '#ebbcba'
+    white: '#e0def4'
+  bright:
+    black: '#ebbcba'
+    red: '#eb6f92'
+    green: '#9ccfd8'
+    yellow: '#f6c177'
+    blue: '#31748f'
+    magenta: '#c4a7e7'
+    cyan: '#ebbcba'
+    white: '#e0def4'
+  hints:
+    start:
+      foreground: '#908caa'
+      background: '#1f1d2e'
+    end:
+      foreground: '#6e6a86'
+      background: '#1f1d2e'
+
+cursor:
+  style:
+    #   - ▇ Block
+    #   - _ Underline
+    #   - | Beam
+    shape: Block
