@@ -8,7 +8,7 @@ window:
   dimensions:
     columns: 110
     lines: 32
-  opacity: 0.75
+  opacity: 0.81
   dynamic_title: true
   dynamic_padding: false
   padding:
@@ -16,20 +16,19 @@ window:
     y: 0
 
 font:
-  normal:
-    family: SauceCodePro Nerd Font
-    style: Regular
-  italic:
-    family: SauceCodePro Nerd Font
-    style: Italic
-  bold:
-    family: SauceCodePro Nerd Font
-    style: Bold
-  bold_italic:
-    family: SauceCodePro Nerd Font
-    style: Bold Italic
-
   size: 16.0
+  normal:
+    family: CartographCF Nerd Font
+    style: Light
+  italic:
+    family: CartographCF Nerd Font
+    style: Light Italic
+  bold:
+    family: CartographCF Nerd Font
+    style: Demi Bold
+  bold_italic:
+    family: CartographCF Nerd Font
+    style: Demi Bold Italic
 
 draw_bold_text_with_bright_colors: false
 
@@ -74,7 +73,6 @@ colors: # rose-pine
     end:
       foreground: '#6e6a86'
       background: '#1f1d2e'
-
 cursor:
   style:
     #   - ▇ Block
