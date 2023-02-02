@@ -8,7 +8,7 @@ window:
   dimensions:
     columns: 110
     lines: 32
-  opacity: 0.81
+  opacity: 0.95
   dynamic_title: true
   dynamic_padding: false
   padding:
@@ -16,19 +16,19 @@ window:
     y: 0
 
 font:
-  size: 16.0
+  size: 15.0
   normal:
-    family: CartographCF Nerd Font
-    style: Light
+    family: ComicCodeLigatures Nerd Font
+    style: Regular
   italic:
-    family: CartographCF Nerd Font
-    style: Light Italic
+    family: ComicCodeLigatures Nerd Font
+    style: Italic
   bold:
-    family: CartographCF Nerd Font
-    style: Demi Bold
+    family: ComicCodeLigatures Nerd Font
+    style: Bold
   bold_italic:
-    family: CartographCF Nerd Font
-    style: Demi Bold Italic
+    family: ComicCodeLigatures Nerd Font
+    style: BoldItalic
 
 draw_bold_text_with_bright_colors: false
 
@@ -73,9 +73,7 @@ colors: # rose-pine
     end:
       foreground: '#6e6a86'
       background: '#1f1d2e'
+
 cursor:
   style:
-    #   - ▇ Block
-    #   - _ Underline
-    #   - | Beam
     shape: Block

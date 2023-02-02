@@ -12,7 +12,7 @@ export PATH="$PATH:.local/bin/"
 
 alias ..='cd ..'
 alias ...='cd ../../'
-alias v="nvim"
+alias nv="nvim"
 alias z="zoxide"
 alias d="dooit"
 alias n="nnn -e"
@@ -23,7 +23,8 @@ alias elt='exa --long --tree --icons'
 
 # Create new tmux session in current folder
 alias tn=$'tmux new -s $(pwd | tr \'\\\/\' \'\\n\' | tail -n 1)'
-
+alias tl="tmux ls"
+alias tk="pkill -f tmux"
 # Alias for git graph
 alias lg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias lg1="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all"
