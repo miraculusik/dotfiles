@@ -1,5 +1,5 @@
 export PATH="$PATH:/opt/homebrew/bin/"
-export PATH="$PATH:.local/bin/"
+export PATH="$PATH:$HOME/.local/bin/"
 
 [ -d "/opt/homebrew/share/zsh-autosuggestions/" ] && source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
                                                   || source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -30,11 +30,13 @@ alias lg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%
 alias lg1="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all"
 alias lg2="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all"
 
-export EDITOR="$(which nvim)"
+# nnn 
 BLK="04" CHR="04" DIR="04" EXE="00" REG="00" HARDLINK="00" SYMLINK="06" MISSING="00" ORPHAN="01" FIFO="0F" SOCK="0F" OTHER="02"
 export NNN_FCOLORS="$BLK$CHR$DIR$EXE$REG$HARDLINK$SYMLINK$MISSING$ORPHAN$FIFO$SOCK$OTHER"
-
+export NNN_PLUGINS="i:imgview"
 
 eval "$(zoxide init zsh)"
 eval "$(starship init zsh)"
+
+export EDITOR="$(which nvim)"
 export PATH=$PATH:/Users/miul/.spicetify

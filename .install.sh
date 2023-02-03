@@ -26,6 +26,7 @@ brew install nnn
 brew install sf-symbols
 brew install lazygit
 brew install tmux
+brew install gcc
 
 brew install --HEAD neovim
 

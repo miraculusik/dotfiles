@@ -41,14 +41,12 @@ require("lazy").setup({
 	},
 
 	-- Git related plugins
-	"tpope/vim-fugitive",
-	"tpope/vim-rhubarb",
-	"lewis6991/gitsigns.nvim",
+	{ "tpope/vim-fugitive", lazy = true },
+	{ "tpope/vim-rhubarb", lazy = true },
+	{ "lewis6991/gitsigns.nvim", lazy = true },
 
-	{ "rose-pine/nvim", name = "rose-pine" },
-	"nvim-lualine/lualine.nvim", -- Fancier statusline
-	"lukas-reineke/indent-blankline.nvim", -- Add indentation guides even on blank lines
-	"numToStr/Comment.nvim", -- "gc" to comment visual regions/lines
+	-- "gc" to comment visual regions/lines
+	{ "numToStr/Comment.nvim" },
 
 	-- Fuzzy Finder (files, lsp, etc)
 	{ "nvim-telescope/telescope.nvim", branch = "0.1.x", dependencies = { "nvim-lua/plenary.nvim" } },
@@ -56,8 +54,7 @@ require("lazy").setup({
 	-- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
 	{ "nvim-telescope/telescope-fzf-native.nvim", build = "make", cond = vim.fn.executable("make") == 1 },
 
-	-- Nvim-tree
-	{
+	{ -- Nvim-tree
 		"nvim-tree/nvim-tree.lua",
 		dependencies = {
 			"nvim-tree/nvim-web-devicons", -- optional, for file icons
@@ -66,22 +63,37 @@ require("lazy").setup({
 		config = true,
 	},
 
+	-- color schemes
+	{ "rose-pine/nvim", lazy = true },
+	{ "rebelot/kanagawa.nvim", lazy = true },
+	{ "EdenEast/nightfox.nvim", lazy = true },
+
+	-- Status line
+	{ "glepnir/whiskyline.nvim", config = true },
+
+	-- Add indentation guides even on blank lines
+	{ "lukas-reineke/indent-blankline.nvim", lazy = true },
+
 	-- autopairs and autotag
 	{ "windwp/nvim-autopairs", config = true },
 	{ "windwp/nvim-ts-autotag", config = true },
 
 	-- highlight css colors
 	{ "brenoprata10/nvim-highlight-colors", config = true },
+
 	-- null-ls
 	{ "jose-elias-alvarez/null-ls.nvim" },
+
 	-- tmux and nvim navigate keys
 	{ "christoomey/vim-tmux-navigator" },
+
 	-- predefined snippets
 	{ "rafamadriz/friendly-snippets" },
+
 	-- highlight under the word
 	{ "RRethy/vim-illuminate" },
-	-- todo comments
-	{
+
+	{ -- todo comments
 		"folke/todo-comments.nvim",
 		dependencies = "nvim-lua/plenary.nvim",
 		config = function()
@@ -92,51 +104,14 @@ require("lazy").setup({
 			}
 		end
 	},
-	{ "luukvbaal/nnn.nvim", config = true },
+
+	-- Code outline
+	{ 'stevearc/aerial.nvim', name = 'aerial' },
 })
 
-----------------------------------------------------------------
---  TODO: Keymaps
--- Must happen before plugins are required (otherwise wrong leader will be used)
+--  Options
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
-
--- use system clipboard as default register
-vim.opt.clipboard:append("unnamedplus")
-
-vim.keymap.set("n", "<leader>n", "<cmd>NnnExplorer<CR>")
-
--- remove highlight
-vim.keymap.set("n", "<leader>h", "<cmd>nohl<CR>")
-
--- nvim_treesitter
-vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>")
-
--- window resize
-vim.keymap.set("n", "<leader><right>", ":vertical resize -2<Cr>")
-vim.keymap.set("n", "<leader><left>", ":vertical resize +2<Cr>")
-vim.keymap.set("n", "<leader><up>", ":resize +2<Cr>")
-vim.keymap.set("n", "<leader><down>", ":resize -2<Cr>")
-
--- window management and split windows
-vim.opt.splitright = true -- split vertical window to the right
-vim.opt.splitbelow = true -- split horizontal window to the bottom_up
-
-vim.keymap.set("n", "<leader>sv", "<C-w>v") -- split window vertically
-vim.keymap.set("n", "<leader>sh", "<C-w>s") -- split window horizontally
-vim.keymap.set("n", "<leader>se", "<C-w>=") -- make split windows equal width & height
-vim.keymap.set("n", "<leader>sx", ":close<CR>") -- close current split window
-
--- TODO comment
-vim.keymap.set("n", "<leader>st", "<cmd>TodoTelescope<CR>")
-vim.keymap.set("n", "]t", function()
-	require("todo-comments").jump_next()
-end, { desc = "Next todo comment" })
-
-vim.keymap.set("n", "[t", function()
-	require("todo-comments").jump_prev()
-end, { desc = "Previous todo comment" })
-
 
 vim.opt.scrolloff = 8
 vim.opt.tabstop = 2
@@ -150,56 +125,67 @@ vim.opt.cursorline = false
 vim.opt.signcolumn = "yes"
 vim.opt.title = true
 vim.opt.titlestring = "%<%F%=%l/%L - nvim"
-
--- Set highlight on search
-vim.o.hlsearch = true
+vim.opt.clipboard:append("unnamedplus") -- access system clipboard
+vim.opt.splitright = true
+vim.opt.splitbelow = true
 vim.opt.wrap = false
-
--- Make line numbers default
-vim.wo.number = true
+vim.o.hlsearch = true
 vim.o.relativenumber = true
-
--- Enable mouse mode
 vim.o.mouse = "a"
-
--- Enable break indent
 vim.o.breakindent = true
-
--- Save undo history
 vim.o.undofile = true
-
--- Case insensitive searching UNLESS /C or capital in search
 vim.o.ignorecase = true
 vim.o.smartcase = true
-
--- Decrease update time
 vim.o.updatetime = 250
-vim.wo.signcolumn = "yes"
-
--- Set colorscheme
-require('rose-pine').setup({
-	disable_italics = false,
-	disable_background = true
-})
-vim.o.termguicolors = true
--- vim.opt.background = "dark"
-vim.cmd([[colorscheme rose-pine]])
-
--- Set completeopt to have a better completion experience
 vim.o.completeopt = "menuone,noselect"
+vim.wo.signcolumn = "yes"
+vim.wo.number = true
+
+-- Keymaps
+vim.keymap.set("n", "<leader>h", "<cmd>nohl<CR>") -- remove highlight
+vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>") -- nvim_treesitter
+vim.keymap.set("n", "<leader><right>", ":vertical resize -2<Cr>") -- window resize
+vim.keymap.set("n", "<leader><left>", ":vertical resize +2<Cr>") -- window resize
+vim.keymap.set("n", "<leader><up>", ":resize +2<Cr>") -- window resize
+vim.keymap.set("n", "<leader><down>", ":resize -2<Cr>") -- window resize
+vim.keymap.set("n", "<leader>sv", "<C-w>v") -- split window vertically
+vim.keymap.set("n", "<leader>sh", "<C-w>s") -- split window horizontally
+vim.keymap.set("n", "<leader>se", "<C-w>=") -- make split windows equal width & height
+vim.keymap.set("n", "<leader>sx", ":close<CR>") -- close current split window
+vim.keymap.set("n", "<leader>st", "<cmd>TodoTelescope<CR>") -- TODO comment
+vim.keymap.set("n", "]t", function()
+	require("todo-comments").jump_next()
+end, { desc = "Next todo comment" })
+vim.keymap.set("n", "[t", function()
+	require("todo-comments").jump_prev()
+end, { desc = "Previous todo comment" })
+
+-- Diagnostic keymaps
+vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
+vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
+vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float)
+vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist)
 
 ----------------------------------------------------------------
 
--- TODO: Lualine
-require("lualine").setup({
-	options = {
-		icons_enabled = true,
-		component_separators = { left = "", right = "" },
-		section_separators = { left = "", right = "" },
-	},
-})
+-- Set colorscheme
+-- require('rose-pine').setup({
+-- 	disable_italics = false,
+-- 	disable_background = true,
+-- 	disable_float_background = false
+-- })
+--
+-- require('nightfox').setup({
+-- 	options = { transparent = true }
+-- })
 
--- TODO: Enable Comment.nvim
+vim.o.termguicolors = true
+-- vim.opt.background = "dark"
+vim.cmd("colorscheme kanagawa")
+
+----------------------------------------------------------------
+
+-- Enable Comment.nvim
 require("Comment").setup()
 
 require("indent_blankline").setup({
@@ -207,7 +193,7 @@ require("indent_blankline").setup({
 	show_trailing_blankline_indent = false,
 })
 
--- TODO: Gitsigns
+-- Gitsigns
 require("gitsigns").setup({
 	signs = {
 		add = { text = "+" },
@@ -218,7 +204,7 @@ require("gitsigns").setup({
 	},
 })
 
--- TODO: Configure Telescope
+-- Configure Telescope
 require("telescope").setup({
 	defaults = {
 		mappings = {
@@ -233,14 +219,12 @@ require("telescope").setup({
 -- Enable telescope fzf native, if installed
 pcall(require("telescope").load_extension, "fzf")
 
--- See `:help telescope.builtin`
 vim.keymap.set("n", "<leader>?", require("telescope.builtin").oldfiles, { desc = "[?] Find recently opened files" })
 vim.keymap.set("n", "<leader><space>", require("telescope.builtin").buffers, { desc = "[ ] Find existing buffers" })
 vim.keymap.set("n", "<leader>/", function()
-	-- You can pass additional configuration to telescope to change theme, layout, etc.
 	require("telescope.builtin").current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
 		winblend = 10,
-		previewer = false,
+		previewer = true,
 	}))
 end, { desc = "[/] Fuzzily search in current buffer]" })
 
@@ -250,12 +234,9 @@ vim.keymap.set("n", "<leader>sw", require("telescope.builtin").grep_string, { de
 vim.keymap.set("n", "<leader>sg", require("telescope.builtin").live_grep, { desc = "[S]earch by [G]rep" })
 vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
 
--- TODO: Configure Treesitter
+-- Configure Treesitter
 require("nvim-treesitter.configs").setup({
-	-- Add languages to be installed here that you want installed for treesitter
 	auto_install = true,
-	-- ensure_installed = { "lua", "python", "typescript", "help", "vim", "javascript", "tsx", "css", "html" },
-
 	highlight = { enable = true },
 	indent = { enable = true, disable = { "python" } },
 	incremental_selection = {
@@ -313,13 +294,8 @@ require("nvim-treesitter.configs").setup({
 	},
 })
 
--- TODO: Diagnostic keymaps
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
-vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float)
-vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist)
 
--- TODO: LSP settings.
+-- LSP settings.
 local on_attach = function(_, bufnr)
 	local nmap = function(keys, func, desc)
 		if desc then
@@ -359,12 +335,6 @@ end
 
 -- Enable the following language servers
 local servers = {
-	-- clangd = {},
-	-- gopls = {},
-	-- pyright = {},
-	-- rust_analyzer = {},
-	-- tsserver = {},
-
 	sumneko_lua = {
 		Lua = {
 			workspace = { checkThirdParty = false },
@@ -373,10 +343,10 @@ local servers = {
 	},
 }
 
--- TODO: Setup neovim lua configuration
+-- Setup neovim lua configuration
 require("neodev").setup()
 
--- TODO: nvim-cmp supports additional completion capabilities, so broadcast that to servers
+-- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
 
@@ -388,6 +358,7 @@ local mason_lspconfig = require("mason-lspconfig")
 
 mason_lspconfig.setup({
 	ensure_installed = vim.tbl_keys(servers),
+	automatic_installation = true
 })
 
 mason_lspconfig.setup_handlers({
@@ -403,7 +374,7 @@ mason_lspconfig.setup_handlers({
 -- Turn on lsp status information
 require("fidget").setup()
 
--- TODO: nvim-cmp setup
+-- nvim-cmp setup
 local cmp = require("cmp")
 local luasnip = require("luasnip")
 
@@ -443,6 +414,7 @@ cmp.setup({
 	sources = {
 		{ name = "nvim_lsp" },
 		{ name = "luasnip" },
+		{ name = "neorg" },
 	},
 	window = {
 		completion = cmp.config.window.bordered(),
@@ -450,10 +422,10 @@ cmp.setup({
 	},
 })
 
--- TODO: friendly snippets
+-- friendly snippets
 require("luasnip/loaders/from_vscode").lazy_load()
 
--- TODO: lsp border
+-- lsp border
 local _border = "rounded"
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
@@ -468,7 +440,7 @@ vim.diagnostic.config({
 	float = { border = _border },
 })
 
--- TODO: null_ls setup
+-- null_ls setup
 local null_ls_status_ok, null_ls = pcall(require, "null-ls")
 if not null_ls_status_ok then
 	return
@@ -508,21 +480,8 @@ null_ls.setup({
 	end,
 })
 
--- -- TODO: emmet_ls
--- local lspconfig = require('lspconfig')
--- local capabilitiesE = vim.lsp.protocol.make_client_capabilities()
--- capabilities.textDocument.completion.completionItem.snippetSupport = true
---
--- lspconfig.emmet_ls.setup({
--- 	-- on_attach = on_attach,
--- 	capabilities = capabilitiesE,
--- 	filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less' },
--- 	init_options = {
--- 		html = {
--- 			options = {
--- 				-- For possible options, see: https://github.com/emmetio/emmet/blob/master/src/config.ts#L79-L267
--- 				["bem.enabled"] = true,
--- 			},
--- 		},
--- 	}
--- })
+-- Aerial outline
+require('aerial').setup({
+	layout = { min_width = 26 },
+	filter_kind = false
+})
