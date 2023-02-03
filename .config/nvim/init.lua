@@ -189,7 +189,7 @@ vim.cmd("colorscheme kanagawa")
 require("Comment").setup()
 
 require("indent_blankline").setup({
-	char = "┊",
+	-- char = "┊",
 	show_trailing_blankline_indent = false,
 })
 
@@ -427,15 +427,12 @@ require("luasnip/loaders/from_vscode").lazy_load()
 
 -- lsp border
 local _border = "rounded"
-
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
 	border = _border,
 })
-
 vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
 	border = _border,
 })
-
 vim.diagnostic.config({
 	float = { border = _border },
 })
@@ -445,7 +442,6 @@ local null_ls_status_ok, null_ls = pcall(require, "null-ls")
 if not null_ls_status_ok then
 	return
 end
-
 local formatting = null_ls.builtins.formatting
 local diagnostics = null_ls.builtins.diagnostics
 
@@ -463,7 +459,6 @@ null_ls.setup({
 		formatting.prettier.with({ extra_args = { "--no-semi", "--single-quote", "--jsx-single-quote" } }),
 		formatting.black.with({ extra_args = { "--fast" } }),
 		formatting.stylua,
-		formatting.autopep8,
 		-- diagnostics.flake8
 	},
 	on_attach = function(client, bufnr)
