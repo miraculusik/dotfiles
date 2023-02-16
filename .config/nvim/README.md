@@ -26,5 +26,5 @@ lspconfig.emmet_ls.setup({
 - [`barbecue.nvim`](https://github.com/utilyre/barbecue.nvim) -> vs code like winbar
 - [`neorg`](https://github.com/nvim-neorg/neorg) -> note taking
 - [`mind.nvim`](https://github.com/phaazon/mind.nvim) -> note taking and task workflows
-- ['nabla.nvim'](https://github.com/jbyuki/nabla.nvim) -> Markdown scentific latex pop-up
-- ['neoformat'](https://github.com/sbdchd/neoformat) -> Code formatter
+- [`nabla.nvim`](https://github.com/jbyuki/nabla.nvim) -> Markdown scentific latex pop-up
+- [`neoformat`](https://github.com/sbdchd/neoformat) -> Code formatter
