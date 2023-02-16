@@ -46,7 +46,7 @@ require("lazy").setup({
 	{ "lewis6991/gitsigns.nvim", lazy = true },
 
 	-- "gc" to comment visual regions/lines
-	{ "numToStr/Comment.nvim" },
+	{ "numToStr/Comment.nvim", config = true },
 
 	-- Fuzzy Finder (files, lsp, etc)
 	{ "nvim-telescope/telescope.nvim", branch = "0.1.x", dependencies = { "nvim-lua/plenary.nvim" } },
@@ -54,32 +54,32 @@ require("lazy").setup({
 	-- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
 	{ "nvim-telescope/telescope-fzf-native.nvim", build = "make", cond = vim.fn.executable("make") == 1 },
 
-	{ -- Nvim-tree
-		"nvim-tree/nvim-tree.lua",
+	{ -- neo-tree
+		"nvim-neo-tree/neo-tree.nvim",
+		branch = "v2.x",
 		dependencies = {
-			"nvim-tree/nvim-web-devicons", -- optional, for file icons
+			"nvim-lua/plenary.nvim",
+			"nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
+			"MunifTanjim/nui.nvim",
 		},
-		version = "nightly", -- optional, updated every week. (see issue #1193)
-		config = true,
 	},
 
-	-- color schemes
-	{ "rose-pine/nvim", lazy = true },
-	{ "rebelot/kanagawa.nvim", lazy = true },
-	{ "EdenEast/nightfox.nvim", lazy = true },
+	-- status line
+	{ "bluz71/nvim-linefly" },
 
-	-- Status line
-	{ "glepnir/whiskyline.nvim", config = true },
+	-- color schemes
+	-- { "rose-pine/nvim", lazy = true },
+	{ "rebelot/kanagawa.nvim", priority = 1000 },
 
 	-- Add indentation guides even on blank lines
-	{ "lukas-reineke/indent-blankline.nvim", lazy = true },
+	{ "lukas-reineke/indent-blankline.nvim" },
 
 	-- autopairs and autotag
 	{ "windwp/nvim-autopairs", config = true },
-	{ "windwp/nvim-ts-autotag", config = true },
+	{ "windwp/nvim-ts-autotag", ft = { "html" }, lazy = true },
 
 	-- highlight css colors
-	{ "brenoprata10/nvim-highlight-colors", config = true },
+	{ "brenoprata10/nvim-highlight-colors", ft = { "css" }, config = true, lazy = true },
 
 	-- null-ls
 	{ "jose-elias-alvarez/null-ls.nvim" },
@@ -97,16 +97,16 @@ require("lazy").setup({
 		"folke/todo-comments.nvim",
 		dependencies = "nvim-lua/plenary.nvim",
 		config = function()
-			require("todo-comments").setup {
+			require("todo-comments").setup({
 				highlight = {
-					after = ""
-				}
-			}
-		end
+					after = "",
+				},
+			})
+		end,
 	},
 
 	-- Code outline
-	{ 'stevearc/aerial.nvim', name = 'aerial' },
+	{ "stevearc/aerial.nvim", name = "aerial" },
 })
 
 --  Options
@@ -138,12 +138,13 @@ vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.o.updatetime = 250
 vim.o.completeopt = "menuone,noselect"
+vim.o.termguicolors = true
 vim.wo.signcolumn = "yes"
 vim.wo.number = true
 
 -- Keymaps
 vim.keymap.set("n", "<leader>h", "<cmd>nohl<CR>") -- remove highlight
-vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>") -- nvim_treesitter
+-- vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>") -- nvim_treesitter
 vim.keymap.set("n", "<leader><right>", ":vertical resize -2<Cr>") -- window resize
 vim.keymap.set("n", "<leader><left>", ":vertical resize +2<Cr>") -- window resize
 vim.keymap.set("n", "<leader><up>", ":resize +2<Cr>") -- window resize
@@ -166,30 +167,13 @@ vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
 vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float)
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist)
 
-----------------------------------------------------------------
-
--- Set colorscheme
--- require('rose-pine').setup({
--- 	disable_italics = false,
--- 	disable_background = true,
--- 	disable_float_background = false
--- })
---
--- require('nightfox').setup({
--- 	options = { transparent = true }
--- })
-
-vim.o.termguicolors = true
 -- vim.opt.background = "dark"
 vim.cmd("colorscheme kanagawa")
 
 ----------------------------------------------------------------
-
--- Enable Comment.nvim
-require("Comment").setup()
-
 require("indent_blankline").setup({
 	-- char = "┊",
+	char = "¦",
 	show_trailing_blankline_indent = false,
 })
 
@@ -292,8 +276,8 @@ require("nvim-treesitter.configs").setup({
 			},
 		},
 	},
+	autotag = { enable = true },
 })
-
 
 -- LSP settings.
 local on_attach = function(_, bufnr)
@@ -335,12 +319,12 @@ end
 
 -- Enable the following language servers
 local servers = {
-	sumneko_lua = {
-		Lua = {
-			workspace = { checkThirdParty = false },
-			telemetry = { enable = false },
-		},
-	},
+	-- sumneko_lua = {
+	-- 	Lua = {
+	-- 		workspace = { checkThirdParty = false },
+	-- 		telemetry = { enable = false },
+	-- 	},
+	-- },
 }
 
 -- Setup neovim lua configuration
@@ -358,7 +342,7 @@ local mason_lspconfig = require("mason-lspconfig")
 
 mason_lspconfig.setup({
 	ensure_installed = vim.tbl_keys(servers),
-	automatic_installation = true
+	automatic_installation = true,
 })
 
 mason_lspconfig.setup_handlers({
@@ -377,6 +361,9 @@ require("fidget").setup()
 -- nvim-cmp setup
 local cmp = require("cmp")
 local luasnip = require("luasnip")
+local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+
+cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
 
 cmp.setup({
 	snippet = {
@@ -392,6 +379,7 @@ cmp.setup({
 			behavior = cmp.ConfirmBehavior.Replace,
 			select = true,
 		}),
+		-- ["<CR>"] = cmp.mapping.confirm({ select = true }),
 		["<Tab>"] = cmp.mapping(function(fallback)
 			if cmp.visible() then
 				cmp.select_next_item()
@@ -414,7 +402,6 @@ cmp.setup({
 	sources = {
 		{ name = "nvim_lsp" },
 		{ name = "luasnip" },
-		{ name = "neorg" },
 	},
 	window = {
 		completion = cmp.config.window.bordered(),
@@ -443,7 +430,7 @@ if not null_ls_status_ok then
 	return
 end
 local formatting = null_ls.builtins.formatting
-local diagnostics = null_ls.builtins.diagnostics
+-- local diagnostics = null_ls.builtins.diagnostics
 
 local lsp_formatting = function(bufnr)
 	vim.lsp.buf.format({
@@ -456,7 +443,7 @@ local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
 null_ls.setup({
 	debug = false,
 	sources = {
-		formatting.prettier.with({ extra_args = { "--no-semi", "--single-quote", "--jsx-single-quote" } }),
+		formatting.prettier.with({ extra_args = { "--single-quote", "--jsx-single-quote" } }), -- "--no-semi",
 		formatting.black.with({ extra_args = { "--fast" } }),
 		formatting.stylua,
 		-- diagnostics.flake8
@@ -476,7 +463,15 @@ null_ls.setup({
 })
 
 -- Aerial outline
-require('aerial').setup({
+require("aerial").setup({
 	layout = { min_width = 26 },
-	filter_kind = false
+	filter_kind = false,
 })
+
+vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
+require("neo-tree").setup({
+	window = {
+		width = "20%",
+	},
+})
+vim.keymap.set("n", "<leader>e", ":NeoTreeFocusToggle<CR>") -- nvim_treesitter

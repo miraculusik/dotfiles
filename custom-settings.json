@@ -8,11 +8,12 @@
       "blue": "#31748f",
       "yellow": "#f6c177",
       "magenta": "#c4a7e7",
-      "cyan": "#ebbcba"
+      "cyan": "#ebbcba",
+      "foreground": "#dcd7ba"
     },
     "barHeight": "22px",
     "barOpacity": "0.85",
-    "fontFamily": "SauceCodePro Nerd Font",
+    "fontFamily": "ComicCodeLigatures Nerd Font",
     "fontSize": "13px"
   },
   "dataWidgets": {
