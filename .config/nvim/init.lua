@@ -9,6 +9,7 @@ if not vim.loop.fs_stat(lazypath) then
 		lazypath,
 	})
 end
+
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
@@ -29,7 +30,12 @@ require("lazy").setup({
 
 	{ -- Autocompletion
 		"hrsh7th/nvim-cmp",
-		dependencies = { "hrsh7th/cmp-nvim-lsp", "L3MON4D3/LuaSnip", "saadparwaiz1/cmp_luasnip" },
+		dependencies = {
+			"hrsh7th/cmp-nvim-lsp",
+			"L3MON4D3/LuaSnip",
+			"saadparwaiz1/cmp_luasnip",
+			"onsails/lspkind.nvim",
+		},
 	},
 
 	{ -- Highlight, edit, and navigate code
@@ -60,20 +66,19 @@ require("lazy").setup({
 			"nvim-tree/nvim-web-devicons", -- optional, for file icons
 		},
 		version = "nightly", -- optional, updated every week. (see issue #1193)
-		config = true,
 	},
+
 	-- status line
 	{ "bluz71/nvim-linefly" },
 
 	-- color schemes
-	-- { "rose-pine/nvim", lazy = true },
 	{ "rebelot/kanagawa.nvim", priority = 1000 },
 
 	-- Add indentation guides even on blank lines
 	{ "lukas-reineke/indent-blankline.nvim" },
 
 	-- autopairs and autotag
-	{ "windwp/nvim-autopairs", config = true },
+	{ "windwp/nvim-autopairs" },
 	{ "windwp/nvim-ts-autotag", ft = { "html" }, lazy = true },
 
 	-- highlight css colors
@@ -106,27 +111,16 @@ require("lazy").setup({
 	-- Code outline
 	{ "stevearc/aerial.nvim", name = "aerial" },
 
-	{ -- Note taking: Neorg
-		"nvim-neorg/neorg",
-		opts = {
-			load = {
-				["core.defaults"] = {}, -- Loads default behaviour
-				["core.norg.completion"] = { config = { engine = "nvim-cmp" } },
-				["core.norg.concealer"] = {}, -- Adds pretty icons to your documents
-				["core.norg.dirman"] = { -- Manages Neorg workspaces
-					config = {
-						workspaces = {
-							notes = "~/notes",
-						},
-					},
-				},
-			},
-		},
-		dependencies = { { "nvim-lua/plenary.nvim" } },
-	},
-
 	-- Lazygit
 	{ "kdheepak/lazygit.nvim" },
+
+	-- mind nvim
+	{
+		"phaazon/mind.nvim",
+		branch = "v2.2",
+		dependencies = { "nvim-lua/plenary.nvim" },
+		config = true,
+	},
 })
 
 --  Options
@@ -190,13 +184,21 @@ vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
 vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float)
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist)
 
+-- Enable telescope fzf native, if installed
+pcall(require("telescope").load_extension, "fzf")
+
+vim.keymap.set("n", "<leader>?", require("telescope.builtin").oldfiles, { desc = "[?] Find recently opened files" })
+vim.keymap.set("n", "<leader><space>", require("telescope.builtin").buffers, { desc = "[ ] Find existing buffers" })
+
+vim.keymap.set("n", "<leader>sf", require("telescope.builtin").find_files, { desc = "[S]earch [F]iles" })
+vim.keymap.set("n", "<leader>ht", require("telescope.builtin").help_tags, { desc = "[S]earch [H]elp" })
+vim.keymap.set("n", "<leader>sw", require("telescope.builtin").grep_string, { desc = "[S]earch current [W]ord" })
+vim.keymap.set("n", "<leader>sg", require("telescope.builtin").live_grep, { desc = "[S]earch by [G]rep" })
+vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
 -- vim.opt.background = "dark"
-require("kanagawa").setup({
-	transparent = true,
-})
 vim.cmd("colorscheme kanagawa")
 
-----------------------------------------------------------------
+-- indent blankline
 require("indent_blankline").setup({
 	-- char = "┊",
 	-- char = "¦",
@@ -225,24 +227,6 @@ require("telescope").setup({
 		},
 	},
 })
-
--- Enable telescope fzf native, if installed
-pcall(require("telescope").load_extension, "fzf")
-
-vim.keymap.set("n", "<leader>?", require("telescope.builtin").oldfiles, { desc = "[?] Find recently opened files" })
-vim.keymap.set("n", "<leader><space>", require("telescope.builtin").buffers, { desc = "[ ] Find existing buffers" })
-vim.keymap.set("n", "<leader>/", function()
-	require("telescope.builtin").current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
-		winblend = 10,
-		previewer = true,
-	}))
-end, { desc = "[/] Fuzzily search in current buffer]" })
-
-vim.keymap.set("n", "<leader>sf", require("telescope.builtin").find_files, { desc = "[S]earch [F]iles" })
-vim.keymap.set("n", "<leader>ht", require("telescope.builtin").help_tags, { desc = "[S]earch [H]elp" })
-vim.keymap.set("n", "<leader>sw", require("telescope.builtin").grep_string, { desc = "[S]earch current [W]ord" })
-vim.keymap.set("n", "<leader>sg", require("telescope.builtin").live_grep, { desc = "[S]earch by [G]rep" })
-vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
 
 -- Configure Treesitter
 require("nvim-treesitter.install").compilers = { "gcc-12" }
@@ -378,13 +362,17 @@ mason_lspconfig.setup_handlers({
 -- Turn on lsp status information
 require("fidget").setup()
 
--- nvim-cmp setup
+-- cmp setup
+require("nvim-autopairs").setup({
+	disable_in_replace_mode = false,
+})
+
 local cmp = require("cmp")
 local luasnip = require("luasnip")
 local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+local lspkind = require("lspkind")
 
 cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
-
 cmp.setup({
 	snippet = {
 		expand = function(args)
@@ -422,11 +410,22 @@ cmp.setup({
 	sources = {
 		{ name = "nvim_lsp" },
 		{ name = "luasnip" },
-		{ name = "neorg" },
+		{ name = "orgmode" },
 	},
 	window = {
 		completion = cmp.config.window.bordered(),
 		documentation = cmp.config.window.bordered(),
+	},
+	formatting = {
+		fields = { "kind", "abbr", "menu" },
+		format = function(entry, vim_item)
+			local kind = require("lspkind").cmp_format({ mode = "symbol_text", maxwidth = 50 })(entry, vim_item)
+			local strings = vim.split(kind.kind, "%s", { trimempty = true })
+			kind.kind = " " .. (strings[1] or "") .. " "
+			kind.menu = "    (" .. (strings[2] or "") .. ")"
+
+			return kind
+		end,
 	},
 })
 
@@ -464,9 +463,6 @@ null_ls.setup({
 		formatting.prettier.with({ extra_args = { "--single-quote", "--jsx-single-quote" } }), -- "--no-semi",
 		formatting.autopep8,
 		formatting.stylua,
-		formatting.eslint,
-		formatting.spell,
-		-- diagnostics.flake8
 	},
 	on_attach = function(client, bufnr)
 		if client.supports_method("textDocument/formatting") then
@@ -486,4 +482,28 @@ null_ls.setup({
 require("aerial").setup({
 	layout = { min_width = 26 },
 	filter_kind = false,
+})
+
+require("illuminate").configure({
+	filetypes_denylist = {
+		"dirvish",
+		"fugitive",
+		"alpha",
+		"NvimTree",
+		"lazy",
+		"neogitstatus",
+		"Trouble",
+		"lir",
+		"Outline",
+		"spectre_panel",
+		"toggleterm",
+		"DressingSelect",
+		"TelescopePrompt",
+	},
+})
+
+require("nvim-tree").setup({
+	renderer = {
+		indent_markers = { enable = true },
+	},
 })
