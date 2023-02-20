@@ -11,30 +11,37 @@ brew analytics off
 
 # Brew Taps
 echo "Installing Brew Formulae..."
-brew tap homebrew/cask-fonts # Nerd fonts 
 brew tap koekeishiya/formulae # yabai - skhd
 
-brew install starship
-brew install --HEAD dooit
-brew install exa
-brew install zoxide
+brew install python
+brew install rust
+brew install node
+npm install -g live-server
 brew install zsh-autosuggestions
 brew install zsh-syntax-highlighting
+brew install starship
+brew install neofetch
+brew install exa
+brew install zoxide
 brew install skhd
 brew install yabai
 brew install nnn
-brew install sf-symbols
+brew install ripgrep
 brew install lazygit
 brew install tmux
 brew install gcc
+brew install git
+brew install tree-sitter
+brew install fontforge
 
 brew install --HEAD neovim
 
 brew install --cask alacritty
-brew install --cask monitorcontrol
-brew install --cask spotify
 brew install --cask alfred
 brew install --cask appcleaner
+brew install --cask calibre
+brew install --cask monitorcontrol
+brew install --cask spotify
 brew install --cask ubersicht
 
 # Spotify theme

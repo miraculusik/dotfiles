@@ -16,14 +16,9 @@ require("lazy").setup({
 	{ -- LSP Configuration & Plugins
 		"neovim/nvim-lspconfig",
 		dependencies = {
-			-- Automatically install LSPs to stdpath for neovim
 			"williamboman/mason.nvim",
 			"williamboman/mason-lspconfig.nvim",
-
-			-- Useful status updates for LSP
 			"j-hui/fidget.nvim",
-
-			-- Additional lua configuration, makes nvim stuff amazing
 			"folke/neodev.nvim",
 		},
 	},
@@ -63,16 +58,17 @@ require("lazy").setup({
 	{
 		"nvim-tree/nvim-tree.lua",
 		dependencies = {
-			"nvim-tree/nvim-web-devicons", -- optional, for file icons
+			"nvim-tree/nvim-web-devicons",
 		},
-		version = "nightly", -- optional, updated every week. (see issue #1193)
+		version = "nightly",
 	},
 
 	-- status line
-	{ "bluz71/nvim-linefly" },
+	{ "bluz71/nvim-linefly", dependencies = { "nvim-tree/nvim-web-devicons" } },
 
 	-- color schemes
-	{ "rebelot/kanagawa.nvim", priority = 1000 },
+	{ "rebelot/kanagawa.nvim", priority = 1000, lazy = true },
+	{ "catppuccin/nvim", name = "catppuccin" },
 
 	-- Add indentation guides even on blank lines
 	{ "lukas-reineke/indent-blankline.nvim" },
@@ -82,7 +78,12 @@ require("lazy").setup({
 	{ "windwp/nvim-ts-autotag", ft = { "html" }, lazy = true },
 
 	-- highlight css colors
-	{ "brenoprata10/nvim-highlight-colors", ft = { "css" }, config = true, lazy = true },
+	{
+		"brenoprata10/nvim-highlight-colors",
+		ft = { "css" },
+		config = true,
+		lazy = true,
+	},
 
 	-- null-ls
 	{ "jose-elias-alvarez/null-ls.nvim" },
@@ -108,19 +109,14 @@ require("lazy").setup({
 		end,
 	},
 
-	-- Code outline
-	{ "stevearc/aerial.nvim", name = "aerial" },
-
 	-- Lazygit
 	{ "kdheepak/lazygit.nvim" },
 
-	-- mind nvim
-	{
-		"phaazon/mind.nvim",
-		branch = "v2.2",
-		dependencies = { "nvim-lua/plenary.nvim" },
-		config = true,
-	},
+	-- Neorg
+	{ "nvim-neorg/neorg" },
+
+	-- Zen mode
+	{ "folke/zen-mode.nvim", config = true },
 })
 
 --  Options
@@ -130,6 +126,7 @@ vim.g.maplocalleader = " "
 vim.opt.scrolloff = 8
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
+vim.opt.softtabstop = 2
 vim.opt.colorcolumn = "99999"
 vim.opt.showtabline = 0
 vim.opt.ignorecase = true
@@ -158,8 +155,20 @@ vim.wo.number = true
 
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
+vim.opt.concealcursor = "nc"
+vim.opt.conceallevel = 2
+
+-- remove wrap for neorg
+vim.api.nvim_create_autocmd("BufEnter", {
+	pattern = { "*.norg" },
+	command = "setlocal wrap",
+})
+-- show strikethrough
+vim.api.nvim_set_hl(0, "@text.strike", { strikethrough = true })
 
 -- Keymaps
+vim.keymap.set("n", "<leader>w", ":w<CR>")
+vim.keymap.set("n", "<leader>q", ":q<CR>")
 vim.keymap.set("n", "<leader>h", "<cmd>nohl<CR>") -- remove highlight
 vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>") -- nvim_treesitter
 vim.keymap.set("n", "<leader><right>", ":vertical resize -2<Cr>") -- window resize
@@ -178,11 +187,13 @@ vim.keymap.set("n", "[t", function()
 	require("todo-comments").jump_prev()
 end, { desc = "Previous todo comment" })
 
+vim.keymap.set("n", "<leader>o", ":AerialToggle<CR>")
+
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
 vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float)
-vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist)
+vim.keymap.set("n", "<leader>dl", vim.diagnostic.setloclist)
 
 -- Enable telescope fzf native, if installed
 pcall(require("telescope").load_extension, "fzf")
@@ -195,17 +206,18 @@ vim.keymap.set("n", "<leader>ht", require("telescope.builtin").help_tags, { desc
 vim.keymap.set("n", "<leader>sw", require("telescope.builtin").grep_string, { desc = "[S]earch current [W]ord" })
 vim.keymap.set("n", "<leader>sg", require("telescope.builtin").live_grep, { desc = "[S]earch by [G]rep" })
 vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
+
+vim.keymap.set("n", "<leader>m", ":Neorg workspace notes<CR>")
+
 -- vim.opt.background = "dark"
 vim.cmd("colorscheme kanagawa")
 
--- indent blankline
 require("indent_blankline").setup({
 	-- char = "┊",
 	-- char = "¦",
 	show_trailing_blankline_indent = false,
 })
 
--- Gitsigns
 require("gitsigns").setup({
 	signs = {
 		add = { text = "+" },
@@ -216,7 +228,6 @@ require("gitsigns").setup({
 	},
 })
 
--- Configure Telescope
 require("telescope").setup({
 	defaults = {
 		mappings = {
@@ -247,8 +258,7 @@ require("nvim-treesitter.configs").setup({
 		select = {
 			enable = true,
 			lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
-			keymaps = {
-				-- You can use the capture groups defined in textobjects.scm
+			keymaps = { -- You can use the capture groups defined in textobjects.scm
 				["aa"] = "@parameter.outer",
 				["ia"] = "@parameter.inner",
 				["af"] = "@function.outer",
@@ -313,14 +323,6 @@ local on_attach = function(_, bufnr)
 	-- See `:help K` for why this keymap
 	nmap("K", vim.lsp.buf.hover, "Hover Documentation")
 	-- nmap("<C-k>", vim.lsp.buf.signature_help, "Signature Documentation")
-
-	-- Lesser used LSP functionality
-	nmap("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-	nmap("<leader>wa", vim.lsp.buf.add_workspace_folder, "[W]orkspace [A]dd Folder")
-	nmap("<leader>wr", vim.lsp.buf.remove_workspace_folder, "[W]orkspace [R]emove Folder")
-	nmap("<leader>wl", function()
-		print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-	end, "[W]orkspace [L]ist Folders")
 
 	-- Create a command `:Format` local to the LSP buffer
 	vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
@@ -387,7 +389,6 @@ cmp.setup({
 			behavior = cmp.ConfirmBehavior.Replace,
 			select = true,
 		}),
-		-- ["<CR>"] = cmp.mapping.confirm({ select = true }),
 		["<Tab>"] = cmp.mapping(function(fallback)
 			if cmp.visible() then
 				cmp.select_next_item()
@@ -410,7 +411,7 @@ cmp.setup({
 	sources = {
 		{ name = "nvim_lsp" },
 		{ name = "luasnip" },
-		{ name = "orgmode" },
+		{ name = "neorg" },
 	},
 	window = {
 		completion = cmp.config.window.bordered(),
@@ -423,7 +424,6 @@ cmp.setup({
 			local strings = vim.split(kind.kind, "%s", { trimempty = true })
 			kind.kind = " " .. (strings[1] or "") .. " "
 			kind.menu = "    (" .. (strings[2] or "") .. ")"
-
 			return kind
 		end,
 	},
@@ -447,7 +447,6 @@ vim.diagnostic.config({
 -- null_ls setup
 local null_ls = require("null-ls")
 local formatting = null_ls.builtins.formatting
--- local diagnostics = null_ls.builtins.diagnostics
 
 local lsp_formatting = function(bufnr)
 	vim.lsp.buf.format({
@@ -461,43 +460,30 @@ null_ls.setup({
 	debug = false,
 	sources = {
 		formatting.prettier.with({ extra_args = { "--single-quote", "--jsx-single-quote" } }), -- "--no-semi",
-		formatting.autopep8,
+		-- formatting.autopep8,
+		formatting.black,
 		formatting.stylua,
 	},
-	on_attach = function(client, bufnr)
-		if client.supports_method("textDocument/formatting") then
-			vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-			vim.api.nvim_create_autocmd("BufWritePre", {
-				group = augroup,
-				buffer = bufnr,
-				callback = function()
-					lsp_formatting(bufnr)
-				end,
-			})
-		end
-	end,
-})
-
--- Aerial outline
-require("aerial").setup({
-	layout = { min_width = 26 },
-	filter_kind = false,
+	-- on_attach = function(client, bufnr)
+	-- 	if client.supports_method("textDocument/formatting") then
+	-- 		vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+	-- 		vim.api.nvim_create_autocmd("BufWritePre", {
+	-- 			group = augroup,
+	-- 			buffer = bufnr,
+	-- 			callback = function()
+	-- 				lsp_formatting(bufnr)
+	-- 			end,
+	-- 		})
+	-- 	end
+	-- end,
 })
 
 require("illuminate").configure({
 	filetypes_denylist = {
-		"dirvish",
-		"fugitive",
-		"alpha",
 		"NvimTree",
 		"lazy",
-		"neogitstatus",
-		"Trouble",
-		"lir",
-		"Outline",
-		"spectre_panel",
+		"norg",
 		"toggleterm",
-		"DressingSelect",
 		"TelescopePrompt",
 	},
 })
@@ -505,5 +491,45 @@ require("illuminate").configure({
 require("nvim-tree").setup({
 	renderer = {
 		indent_markers = { enable = true },
+	},
+})
+
+require("neorg").setup({
+	load = {
+		["core.defaults"] = {},
+		["core.norg.completion"] = { config = { engine = "nvim-cmp" } },
+		-- ["core.presenter"] = {},
+		["core.norg.concealer"] = {
+			config = {
+				icon_preset = "varied",
+				folds = false,
+				dim_code_blocks = {
+					enabled = true,
+					padding = { left = 1 },
+				},
+			},
+		},
+		["core.norg.dirman"] = {
+			config = {
+				workspaces = {
+					notes = "~/notes",
+				},
+			},
+		},
+	},
+})
+
+require("nvim-web-devicons").set_icon({
+	norg = {
+		icon = "",
+		color = "#56949f",
+		cterm_color = "65",
+		name = "Norg",
+	},
+})
+
+require("zen-mode").setup({
+	plugins = {
+		neorg = { enabled = true },
 	},
 })
