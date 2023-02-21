@@ -49,6 +49,9 @@ require("lazy").setup({
 	-- "gc" to comment visual regions/lines
 	{ "numToStr/Comment.nvim", config = true },
 
+	-- null_ls
+	{ "jose-elias-alvarez/null-ls.nvim" },
+
 	-- Fuzzy Finder (files, lsp, etc)
 	{ "nvim-telescope/telescope.nvim", branch = "0.1.x", dependencies = { "nvim-lua/plenary.nvim" } },
 
@@ -84,9 +87,6 @@ require("lazy").setup({
 		config = true,
 		lazy = true,
 	},
-
-	-- null-ls
-	{ "jose-elias-alvarez/null-ls.nvim" },
 
 	-- tmux and nvim navigate keys
 	{ "christoomey/vim-tmux-navigator" },
@@ -158,9 +158,9 @@ vim.g.loaded_netrwPlugin = 1
 vim.opt.concealcursor = "nc"
 vim.opt.conceallevel = 2
 
--- remove wrap for neorg
+-- remove wrap for neorg and markdown
 vim.api.nvim_create_autocmd("BufEnter", {
-	pattern = { "*.norg" },
+	pattern = { "*.norg", "*.md" },
 	command = "setlocal wrap",
 })
 -- show strikethrough
@@ -213,7 +213,7 @@ vim.keymap.set("n", "<leader>m", ":Neorg workspace notes<CR>")
 vim.cmd("colorscheme kanagawa")
 
 require("indent_blankline").setup({
-	-- char = "┊",
+	char = "┊",
 	-- char = "¦",
 	show_trailing_blankline_indent = false,
 })
@@ -257,8 +257,8 @@ require("nvim-treesitter.configs").setup({
 	textobjects = {
 		select = {
 			enable = true,
-			lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
-			keymaps = { -- You can use the capture groups defined in textobjects.scm
+			lookahead = true,
+			keymaps = {
 				["aa"] = "@parameter.outer",
 				["ia"] = "@parameter.inner",
 				["af"] = "@function.outer",
@@ -459,23 +459,23 @@ local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
 null_ls.setup({
 	debug = false,
 	sources = {
-		formatting.prettier.with({ extra_args = { "--single-quote", "--jsx-single-quote" } }), -- "--no-semi",
-		-- formatting.autopep8,
+		-- formatting.prettier.with({ extra_args = { "--single-quote", "--jsx-single-quote" } }), -- "--no-semi",
+		formatting.prettierd,
 		formatting.black,
 		formatting.stylua,
 	},
-	-- on_attach = function(client, bufnr)
-	-- 	if client.supports_method("textDocument/formatting") then
-	-- 		vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-	-- 		vim.api.nvim_create_autocmd("BufWritePre", {
-	-- 			group = augroup,
-	-- 			buffer = bufnr,
-	-- 			callback = function()
-	-- 				lsp_formatting(bufnr)
-	-- 			end,
-	-- 		})
-	-- 	end
-	-- end,
+	on_attach = function(client, bufnr)
+		if client.supports_method("textDocument/formatting") then
+			vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+			vim.api.nvim_create_autocmd("BufWritePre", {
+				group = augroup,
+				buffer = bufnr,
+				callback = function()
+					lsp_formatting(bufnr)
+				end,
+			})
+		end
+	end,
 })
 
 require("illuminate").configure({
@@ -498,7 +498,6 @@ require("neorg").setup({
 	load = {
 		["core.defaults"] = {},
 		["core.norg.completion"] = { config = { engine = "nvim-cmp" } },
-		-- ["core.presenter"] = {},
 		["core.norg.concealer"] = {
 			config = {
 				icon_preset = "varied",
@@ -525,11 +524,5 @@ require("nvim-web-devicons").set_icon({
 		color = "#56949f",
 		cterm_color = "65",
 		name = "Norg",
-	},
-})
-
-require("zen-mode").setup({
-	plugins = {
-		neorg = { enabled = true },
 	},
 })
