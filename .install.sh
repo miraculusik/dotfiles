@@ -31,7 +31,6 @@ brew install lazygit
 brew install tmux
 brew install gcc
 brew install git
-brew install tree-sitter
 brew install fontforge
 
 brew install --HEAD neovim
