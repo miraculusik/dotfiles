@@ -115,14 +115,17 @@ require("lazy").setup({
 	-- Neorg
 	{ "nvim-neorg/neorg" },
 
-	-- Zen mode
-	{ "folke/zen-mode.nvim", config = true },
+	-- bufferline
+	{
+		"akinsho/bufferline.nvim",
+		version = "v3.*",
+		dependencies = "nvim-tree/nvim-web-devicons",
+	},
 })
 
 --  Options
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
-
 vim.opt.scrolloff = 8
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
@@ -152,7 +155,6 @@ vim.o.completeopt = "menuone,noselect"
 vim.o.termguicolors = true
 vim.wo.signcolumn = "yes"
 vim.wo.number = true
-
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.concealcursor = "nc"
@@ -163,6 +165,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
 	pattern = { "*.norg", "*.md" },
 	command = "setlocal wrap",
 })
+
 -- show strikethrough
 vim.api.nvim_set_hl(0, "@text.strike", { strikethrough = true })
 
@@ -209,12 +212,18 @@ vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { de
 
 vim.keymap.set("n", "<leader>m", ":Neorg workspace notes<CR>")
 
+vim.keymap.set("n", "<leader>bn", ":BufferLineCycleNext<CR>")
+vim.keymap.set("n", "<leader>bb", ":BufferLineCyclePrev<CR>")
+vim.keymap.set("n", "<leader>bs", ":BufferLinePick<CR>")
+vim.keymap.set("n", "<leader>bc", ":BufferLinePickClose<CR>")
+vim.keymap.set("n", "<leader>bcl", ":BufferLineCloseLeft<CR>")
+vim.keymap.set("n", "<leader>bcr", ":BufferLineCloseRight<CR>")
+
 -- vim.opt.background = "dark"
 vim.cmd("colorscheme kanagawa")
 
 require("indent_blankline").setup({
 	char = "┊",
-	-- char = "¦",
 	show_trailing_blankline_indent = false,
 })
 
@@ -526,3 +535,5 @@ require("nvim-web-devicons").set_icon({
 		name = "Norg",
 	},
 })
+
+require("bufferline").setup()
