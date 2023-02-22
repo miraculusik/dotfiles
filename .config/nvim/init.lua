@@ -126,6 +126,7 @@ require("lazy").setup({
 --  Options
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+
 vim.opt.scrolloff = 8
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
@@ -155,6 +156,7 @@ vim.o.completeopt = "menuone,noselect"
 vim.o.termguicolors = true
 vim.wo.signcolumn = "yes"
 vim.wo.number = true
+
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.concealcursor = "nc"
@@ -165,7 +167,6 @@ vim.api.nvim_create_autocmd("BufEnter", {
 	pattern = { "*.norg", "*.md" },
 	command = "setlocal wrap",
 })
-
 -- show strikethrough
 vim.api.nvim_set_hl(0, "@text.strike", { strikethrough = true })
 
@@ -189,8 +190,6 @@ end, { desc = "Next todo comment" })
 vim.keymap.set("n", "[t", function()
 	require("todo-comments").jump_prev()
 end, { desc = "Previous todo comment" })
-
-vim.keymap.set("n", "<leader>o", ":AerialToggle<CR>")
 
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
@@ -218,6 +217,11 @@ vim.keymap.set("n", "<leader>bs", ":BufferLinePick<CR>")
 vim.keymap.set("n", "<leader>bc", ":BufferLinePickClose<CR>")
 vim.keymap.set("n", "<leader>bcl", ":BufferLineCloseLeft<CR>")
 vim.keymap.set("n", "<leader>bcr", ":BufferLineCloseRight<CR>")
+
+-- comment with '<leader>\'
+vim.keymap.set("n", "<leader>/", function()
+	return vim.v.count == 0 and "<Plug>(comment_toggle_linewise_current)" or "<Plug>(comment_toggle_linewise_count)"
+end, { expr = true })
 
 -- vim.opt.background = "dark"
 vim.cmd("colorscheme kanagawa")
@@ -339,20 +343,14 @@ local on_attach = function(_, bufnr)
 	end, { desc = "Format current buffer with LSP" })
 end
 
--- Enable the following language servers
+-- mason-lsp
 local servers = {}
 
--- Setup neovim lua configuration
 require("neodev").setup()
-
--- nvim-cmp supports additional completion capabilities, so broadcast that to servers
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
-
--- Setup mason so it can manage external tooling
 require("mason").setup()
 
--- Ensure the servers above are installed
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
 local mason_lspconfig = require("mason-lspconfig")
 
 mason_lspconfig.setup({
@@ -468,8 +466,7 @@ local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
 null_ls.setup({
 	debug = false,
 	sources = {
-		-- formatting.prettier.with({ extra_args = { "--single-quote", "--jsx-single-quote" } }), -- "--no-semi",
-		formatting.prettierd,
+		formatting.prettier.with({ extra_args = { "--single-quote", "--jsx-single-quote" } }), -- "--no-semi",
 		formatting.black,
 		formatting.stylua,
 	},
