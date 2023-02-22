@@ -190,34 +190,29 @@ end, { desc = "Next todo comment" })
 vim.keymap.set("n", "[t", function()
 	require("todo-comments").jump_prev()
 end, { desc = "Previous todo comment" })
-
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
 vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float)
 vim.keymap.set("n", "<leader>dl", vim.diagnostic.setloclist)
-
 -- Enable telescope fzf native, if installed
 pcall(require("telescope").load_extension, "fzf")
-
 vim.keymap.set("n", "<leader>?", require("telescope.builtin").oldfiles, { desc = "[?] Find recently opened files" })
 vim.keymap.set("n", "<leader><space>", require("telescope.builtin").buffers, { desc = "[ ] Find existing buffers" })
-
 vim.keymap.set("n", "<leader>sf", require("telescope.builtin").find_files, { desc = "[S]earch [F]iles" })
 vim.keymap.set("n", "<leader>ht", require("telescope.builtin").help_tags, { desc = "[S]earch [H]elp" })
 vim.keymap.set("n", "<leader>sw", require("telescope.builtin").grep_string, { desc = "[S]earch current [W]ord" })
 vim.keymap.set("n", "<leader>sg", require("telescope.builtin").live_grep, { desc = "[S]earch by [G]rep" })
 vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
-
+-- Neorg
 vim.keymap.set("n", "<leader>m", ":Neorg workspace notes<CR>")
-
+-- bufferline keymaps
 vim.keymap.set("n", "<leader>bn", ":BufferLineCycleNext<CR>")
 vim.keymap.set("n", "<leader>bb", ":BufferLineCyclePrev<CR>")
 vim.keymap.set("n", "<leader>bs", ":BufferLinePick<CR>")
 vim.keymap.set("n", "<leader>bc", ":BufferLinePickClose<CR>")
 vim.keymap.set("n", "<leader>bcl", ":BufferLineCloseLeft<CR>")
 vim.keymap.set("n", "<leader>bcr", ":BufferLineCloseRight<CR>")
-
 -- comment with '<leader>\'
 vim.keymap.set("n", "<leader>/", function()
 	return vim.v.count == 0 and "<Plug>(comment_toggle_linewise_current)" or "<Plug>(comment_toggle_linewise_count)"
@@ -225,11 +220,6 @@ end, { expr = true })
 
 -- vim.opt.background = "dark"
 vim.cmd("colorscheme kanagawa")
-
-require("indent_blankline").setup({
-	char = "┊",
-	show_trailing_blankline_indent = false,
-})
 
 require("gitsigns").setup({
 	signs = {
@@ -319,23 +309,17 @@ local on_attach = function(_, bufnr)
 		if desc then
 			desc = "LSP: " .. desc
 		end
-
 		vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
 	end
-
 	nmap("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
 	nmap("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
-
 	nmap("gd", vim.lsp.buf.definition, "[G]oto [D]efinition")
 	nmap("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
 	nmap("gI", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
 	nmap("<leader>D", vim.lsp.buf.type_definition, "Type [D]efinition")
 	nmap("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
 	nmap("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
-
-	-- See `:help K` for why this keymap
 	nmap("K", vim.lsp.buf.hover, "Hover Documentation")
-	-- nmap("<C-k>", vim.lsp.buf.signature_help, "Signature Documentation")
 
 	-- Create a command `:Format` local to the LSP buffer
 	vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
@@ -345,7 +329,6 @@ end
 
 -- mason-lsp
 local servers = {}
-
 require("neodev").setup()
 require("mason").setup()
 
@@ -368,8 +351,7 @@ mason_lspconfig.setup_handlers({
 	end,
 })
 
--- Turn on lsp status information
-require("fidget").setup()
+require("fidget").setup() -- Turn on lsp status information
 
 -- cmp setup
 require("nvim-autopairs").setup({
@@ -454,13 +436,11 @@ vim.diagnostic.config({
 -- null_ls setup
 local null_ls = require("null-ls")
 local formatting = null_ls.builtins.formatting
-
 local lsp_formatting = function(bufnr)
 	vim.lsp.buf.format({
 		bufnr = bufnr,
 	})
 end
-
 local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
 
 null_ls.setup({
