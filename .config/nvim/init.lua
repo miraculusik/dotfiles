@@ -514,3 +514,7 @@ require("nvim-web-devicons").set_icon({
 })
 
 require("bufferline").setup()
+
+require("indent_blankline").setup({
+	char = "┊",
+})

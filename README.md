@@ -7,3 +7,4 @@
 - Editor: neovim
 - Menubar: simple-bar-lite (ubersicht)
 - Terminal: Alacritty
+- Note taking: Neorg (neovim)
