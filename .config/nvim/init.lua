@@ -47,7 +47,7 @@ require("lazy").setup({
 	{ "lewis6991/gitsigns.nvim", lazy = true },
 
 	-- "gc" to comment visual regions/lines
-	{ "numToStr/Comment.nvim", config = true },
+	{ "numToStr/Comment.nvim" },
 
 	-- null_ls
 	{ "jose-elias-alvarez/null-ls.nvim" },
@@ -69,16 +69,20 @@ require("lazy").setup({
 	-- status line
 	{ "bluz71/nvim-linefly", dependencies = { "nvim-tree/nvim-web-devicons" } },
 
-	-- color schemes
-	{ "rebelot/kanagawa.nvim", priority = 1000, lazy = true },
-	{ "catppuccin/nvim", name = "catppuccin" },
+	-- color schemes {commit = "de7fb5f"}
+	{ "rebelot/kanagawa.nvim", lazy = true },
 
 	-- Add indentation guides even on blank lines
 	{ "lukas-reineke/indent-blankline.nvim" },
 
 	-- autopairs and autotag
 	{ "windwp/nvim-autopairs" },
-	{ "windwp/nvim-ts-autotag", ft = { "html" }, lazy = true },
+	{
+		"windwp/nvim-ts-autotag",
+		ft = { "html" },
+		lazy = true,
+		config = true,
+	},
 
 	-- highlight css colors
 	{
@@ -115,11 +119,29 @@ require("lazy").setup({
 	-- Neorg
 	{ "nvim-neorg/neorg" },
 
-	-- bufferline
+	-- nvim terminal
+	{ "akinsho/toggleterm.nvim", version = "*", config = true },
+
+	-- flybuf
 	{
-		"akinsho/bufferline.nvim",
-		version = "v3.*",
-		dependencies = "nvim-tree/nvim-web-devicons",
+		"glepnir/flybuf.nvim",
+		cmd = "FlyBuf",
+		config = function()
+			require("flybuf").setup({
+				border = "rounded",
+			})
+		end,
+	},
+	-- Markdown Preview
+	{
+		"iamcco/markdown-preview.nvim",
+		build = "cd app && npm install",
+		config = function()
+			vim.g.mkdp_filetypes = {
+				"markdown",
+			}
+		end,
+		ft = { "markdown" },
 	},
 })
 
@@ -136,11 +158,11 @@ vim.opt.showtabline = 0
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.smartindent = true
-vim.opt.cursorline = false
+vim.opt.cursorline = true
 vim.opt.signcolumn = "yes"
 vim.opt.title = true
 vim.opt.titlestring = "%<%F%=%l/%L - nvim"
-vim.opt.clipboard:append("unnamedplus") -- access system clipboard
+vim.opt.clipboard = "unnamedplus"
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 vim.opt.wrap = false
@@ -156,11 +178,10 @@ vim.o.completeopt = "menuone,noselect"
 vim.o.termguicolors = true
 vim.wo.signcolumn = "yes"
 vim.wo.number = true
-
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
+vim.opt.conceallevel = 1
 vim.opt.concealcursor = "nc"
-vim.opt.conceallevel = 2
 
 -- remove wrap for neorg and markdown
 vim.api.nvim_create_autocmd("BufEnter", {
@@ -173,6 +194,8 @@ vim.api.nvim_set_hl(0, "@text.strike", { strikethrough = true })
 -- Keymaps
 vim.keymap.set("n", "<leader>w", ":w<CR>")
 vim.keymap.set("n", "<leader>q", ":q<CR>")
+vim.keymap.set("n", "<leader>nr", ":!node %<CR>")
+vim.keymap.set("n", "<leader>pr", ":!python3 %<CR>")
 vim.keymap.set("n", "<leader>h", "<cmd>nohl<CR>") -- remove highlight
 vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>") -- nvim_treesitter
 vim.keymap.set("n", "<leader><right>", ":vertical resize -2<Cr>") -- window resize
@@ -204,21 +227,18 @@ vim.keymap.set("n", "<leader>ht", require("telescope.builtin").help_tags, { desc
 vim.keymap.set("n", "<leader>sw", require("telescope.builtin").grep_string, { desc = "[S]earch current [W]ord" })
 vim.keymap.set("n", "<leader>sg", require("telescope.builtin").live_grep, { desc = "[S]earch by [G]rep" })
 vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
--- Neorg
-vim.keymap.set("n", "<leader>m", ":Neorg workspace notes<CR>")
--- bufferline keymaps
-vim.keymap.set("n", "<leader>bn", ":BufferLineCycleNext<CR>")
-vim.keymap.set("n", "<leader>bb", ":BufferLineCyclePrev<CR>")
-vim.keymap.set("n", "<leader>bs", ":BufferLinePick<CR>")
-vim.keymap.set("n", "<leader>bc", ":BufferLinePickClose<CR>")
-vim.keymap.set("n", "<leader>bcl", ":BufferLineCloseLeft<CR>")
-vim.keymap.set("n", "<leader>bcr", ":BufferLineCloseRight<CR>")
--- comment with '<leader>\'
-vim.keymap.set("n", "<leader>/", function()
-	return vim.v.count == 0 and "<Plug>(comment_toggle_linewise_current)" or "<Plug>(comment_toggle_linewise_count)"
-end, { expr = true })
 
--- vim.opt.background = "dark"
+vim.keymap.set("n", "<leader>m", ":Neorg workspace notes<CR>")
+vim.keymap.set("n", "<leader>ot", ":ToggleTerm<CR>")
+vim.keymap.set("n", "<leader>fl", ":FlyBuf<CR>")
+
+vim.opt.background = "dark"
+require("kanagawa").setup({
+	colors = {
+		theme = { all = { ui = { bg_gutter = "none" } } },
+	},
+	-- transparent = true,
+})
 vim.cmd("colorscheme kanagawa")
 
 require("gitsigns").setup({
@@ -300,7 +320,6 @@ require("nvim-treesitter.configs").setup({
 			},
 		},
 	},
-	-- autotag = { enable = true },
 })
 
 -- LSP settings.
@@ -318,7 +337,7 @@ local on_attach = function(_, bufnr)
 	nmap("gI", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
 	nmap("<leader>D", vim.lsp.buf.type_definition, "Type [D]efinition")
 	nmap("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
-	nmap("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
+	-- nmap("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
 	nmap("K", vim.lsp.buf.hover, "Hover Documentation")
 
 	-- Create a command `:Format` local to the LSP buffer
@@ -478,6 +497,15 @@ require("nvim-tree").setup({
 	renderer = {
 		indent_markers = { enable = true },
 	},
+	-- update_focused_file = {
+	-- 	enable = true,
+	-- 	update_root = true,
+	-- },
+})
+
+require("indent_blankline").setup({
+	char = "┊",
+	bufname_exclude = { ".*.norg" },
 })
 
 require("neorg").setup({
@@ -489,7 +517,6 @@ require("neorg").setup({
 				icon_preset = "varied",
 				folds = false,
 				dim_code_blocks = {
-					enabled = true,
 					padding = { left = 1 },
 				},
 			},
@@ -499,6 +526,12 @@ require("neorg").setup({
 				workspaces = {
 					notes = "~/notes",
 				},
+			},
+		},
+		["core.export"] = {},
+		["core.export.markdown"] = {
+			config = {
+				extensions = "all",
 			},
 		},
 	},
@@ -513,8 +546,16 @@ require("nvim-web-devicons").set_icon({
 	},
 })
 
-require("bufferline").setup()
-
-require("indent_blankline").setup({
-	char = "┊",
+require("Comment").setup({
+	toggler = { line = "<leader>/" },
+	opleader = { line = "<leader>/" },
 })
+
+-- linefly config
+local highlight = vim.api.nvim_set_hl
+
+highlight(0, "LineflyNormal", { link = "DiffChange" })
+highlight(0, "LineflyInsert", { link = "WildMenu" })
+highlight(0, "LineflyVisual", { link = "IncSearch" })
+highlight(0, "LineflyCommand", { link = "WildMenu" })
+highlight(0, "LineflyReplace", { link = "ErrorMsg" })
