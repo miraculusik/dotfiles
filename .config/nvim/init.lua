@@ -70,7 +70,7 @@ require("lazy").setup({
 	{ "bluz71/nvim-linefly", dependencies = { "nvim-tree/nvim-web-devicons" } },
 
 	-- color schemes {commit = "de7fb5f"}
-	{ "rebelot/kanagawa.nvim", lazy = true },
+	{ "rebelot/kanagawa.nvim", lazy = true, priority = 1000 },
 
 	-- Add indentation guides even on blank lines
 	{ "lukas-reineke/indent-blankline.nvim" },
@@ -116,12 +116,6 @@ require("lazy").setup({
 	-- Lazygit
 	{ "kdheepak/lazygit.nvim" },
 
-	-- Neorg
-	{ "nvim-neorg/neorg" },
-
-	-- nvim terminal
-	{ "akinsho/toggleterm.nvim", version = "*", config = true },
-
 	-- flybuf
 	{
 		"glepnir/flybuf.nvim",
@@ -132,17 +126,6 @@ require("lazy").setup({
 			})
 		end,
 	},
-	-- Markdown Preview
-	{
-		"iamcco/markdown-preview.nvim",
-		build = "cd app && npm install",
-		config = function()
-			vim.g.mkdp_filetypes = {
-				"markdown",
-			}
-		end,
-		ft = { "markdown" },
-	},
 })
 
 --  Options
@@ -150,14 +133,16 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 vim.opt.scrolloff = 8
+vim.opt.smartindent = true
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
 vim.opt.softtabstop = 2
+vim.opt.autoindent = true
+vim.opt.expandtab = true
 vim.opt.colorcolumn = "99999"
 vim.opt.showtabline = 0
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
-vim.opt.smartindent = true
 vim.opt.cursorline = true
 vim.opt.signcolumn = "yes"
 vim.opt.title = true
@@ -182,6 +167,7 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.conceallevel = 1
 vim.opt.concealcursor = "nc"
+vim.cmd("let g:python_recommended_style = 0")
 
 -- remove wrap for neorg and markdown
 vim.api.nvim_create_autocmd("BufEnter", {
@@ -228,8 +214,6 @@ vim.keymap.set("n", "<leader>sw", require("telescope.builtin").grep_string, { de
 vim.keymap.set("n", "<leader>sg", require("telescope.builtin").live_grep, { desc = "[S]earch by [G]rep" })
 vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
 
-vim.keymap.set("n", "<leader>m", ":Neorg workspace notes<CR>")
-vim.keymap.set("n", "<leader>ot", ":ToggleTerm<CR>")
 vim.keymap.set("n", "<leader>fl", ":FlyBuf<CR>")
 
 vim.opt.background = "dark"
@@ -263,7 +247,6 @@ require("telescope").setup({
 })
 
 -- Configure Treesitter
-require("nvim-treesitter.install").compilers = { "gcc-12" }
 require("nvim-treesitter.configs").setup({
 	auto_install = true,
 	highlight = { enable = true },
@@ -419,7 +402,6 @@ cmp.setup({
 	sources = {
 		{ name = "nvim_lsp" },
 		{ name = "luasnip" },
-		{ name = "neorg" },
 	},
 	window = {
 		completion = cmp.config.window.bordered(),
@@ -466,7 +448,10 @@ null_ls.setup({
 	debug = false,
 	sources = {
 		formatting.prettier.with({ extra_args = { "--single-quote", "--jsx-single-quote" } }), -- "--no-semi",
-		formatting.black,
+		-- formatting.black,
+		formatting.autopep8.with({
+			extra_args = { "--indent-size=2", "--ignore=E121", "--ignore=E305" },
+		}),
 		formatting.stylua,
 	},
 	on_attach = function(client, bufnr)
@@ -506,44 +491,6 @@ require("nvim-tree").setup({
 require("indent_blankline").setup({
 	char = "┊",
 	bufname_exclude = { ".*.norg" },
-})
-
-require("neorg").setup({
-	load = {
-		["core.defaults"] = {},
-		["core.norg.completion"] = { config = { engine = "nvim-cmp" } },
-		["core.norg.concealer"] = {
-			config = {
-				icon_preset = "varied",
-				folds = false,
-				dim_code_blocks = {
-					padding = { left = 1 },
-				},
-			},
-		},
-		["core.norg.dirman"] = {
-			config = {
-				workspaces = {
-					notes = "~/notes",
-				},
-			},
-		},
-		["core.export"] = {},
-		["core.export.markdown"] = {
-			config = {
-				extensions = "all",
-			},
-		},
-	},
-})
-
-require("nvim-web-devicons").set_icon({
-	norg = {
-		icon = "",
-		color = "#56949f",
-		cterm_color = "65",
-		name = "Norg",
-	},
 })
 
 require("Comment").setup({
