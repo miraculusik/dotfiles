@@ -9,7 +9,6 @@ if not vim.loop.fs_stat(lazypath) then
 		lazypath,
 	})
 end
-
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
@@ -22,6 +21,7 @@ require("lazy").setup({
 			"folke/neodev.nvim",
 		},
 	},
+	{ "j-hui/fidget.nvim", tag = "legacy" },
 
 	{ -- Autocompletion
 		"hrsh7th/nvim-cmp",
@@ -49,9 +49,6 @@ require("lazy").setup({
 	-- "gc" to comment visual regions/lines
 	{ "numToStr/Comment.nvim" },
 
-	-- null_ls
-	{ "jose-elias-alvarez/null-ls.nvim" },
-
 	-- Fuzzy Finder (files, lsp, etc)
 	{ "nvim-telescope/telescope.nvim", branch = "0.1.x", dependencies = { "nvim-lua/plenary.nvim" } },
 
@@ -63,17 +60,22 @@ require("lazy").setup({
 		dependencies = {
 			"nvim-tree/nvim-web-devicons",
 		},
-		version = "nightly",
+		-- version = "nightly",
 	},
 
-	-- status line
-	{ "bluz71/nvim-linefly", dependencies = { "nvim-tree/nvim-web-devicons" } },
-
-	-- color schemes {commit = "de7fb5f"}
-	{ "rebelot/kanagawa.nvim", lazy = true, priority = 1000 },
+	-- colorscheme
+	{ "HoNamDuong/hybrid.nvim", lazy = true },
 
 	-- Add indentation guides even on blank lines
-	{ "lukas-reineke/indent-blankline.nvim" },
+	{
+		"lukas-reineke/indent-blankline.nvim",
+		main = "ibl",
+		opts = {
+			indent = { char = "┊" },
+			scope = { enabled = false },
+		},
+		-- cond = false,
+	},
 
 	-- autopairs and autotag
 	{ "windwp/nvim-autopairs" },
@@ -126,7 +128,16 @@ require("lazy").setup({
 			})
 		end,
 	},
+	{ "bluz71/nvim-linefly", lazy = false },
+	{ "stevearc/conform.nvim" },
+	{
+		"nvim-lualine/lualine.nvim",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+	},
 })
+
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 
 --  Options
 vim.g.mapleader = " "
@@ -143,7 +154,7 @@ vim.opt.colorcolumn = "99999"
 vim.opt.showtabline = 0
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
-vim.opt.cursorline = true
+vim.opt.cursorline = false
 vim.opt.signcolumn = "yes"
 vim.opt.title = true
 vim.opt.titlestring = "%<%F%=%l/%L - nvim"
@@ -177,6 +188,20 @@ vim.api.nvim_create_autocmd("BufEnter", {
 -- show strikethrough
 vim.api.nvim_set_hl(0, "@text.strike", { strikethrough = true })
 
+vim.diagnostic.config({
+	signs = true,
+	underline = true,
+	virtual_text = false,
+	virtual_lines = false,
+	severity_sort = true,
+	update_in_insert = true,
+	float = {
+		header = false,
+		border = "rounded",
+		source = "always",
+		focusable = true,
+	},
+})
 -- Keymaps
 vim.keymap.set("n", "<leader>w", ":w<CR>")
 vim.keymap.set("n", "<leader>q", ":q<CR>")
@@ -217,13 +242,7 @@ vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { de
 vim.keymap.set("n", "<leader>fl", ":FlyBuf<CR>")
 
 vim.opt.background = "dark"
-require("kanagawa").setup({
-	colors = {
-		theme = { all = { ui = { bg_gutter = "none" } } },
-	},
-	-- transparent = true,
-})
-vim.cmd("colorscheme kanagawa")
+vim.cmd("colorscheme hybrid")
 
 require("gitsigns").setup({
 	signs = {
@@ -250,7 +269,7 @@ require("telescope").setup({
 require("nvim-treesitter.configs").setup({
 	auto_install = true,
 	highlight = { enable = true },
-	indent = { enable = true, disable = { "python" } },
+	indent = { enable = true }, --, disable = { "python" } },
 	incremental_selection = {
 		enable = true,
 		keymaps = {
@@ -400,8 +419,10 @@ cmp.setup({
 		end, { "i", "s" }),
 	}),
 	sources = {
-		{ name = "nvim_lsp" },
-		{ name = "luasnip" },
+		{ name = "path" },
+		{ name = "nvim_lsp", keyword_length = 1 },
+		{ name = "buffer", keyword_length = 3 },
+		{ name = "luasnip", keyword_length = 2 },
 	},
 	window = {
 		completion = cmp.config.window.bordered(),
@@ -433,40 +454,9 @@ vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.s
 vim.diagnostic.config({
 	float = { border = _border },
 })
-
--- null_ls setup
-local null_ls = require("null-ls")
-local formatting = null_ls.builtins.formatting
-local lsp_formatting = function(bufnr)
-	vim.lsp.buf.format({
-		bufnr = bufnr,
-	})
-end
-local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-
-null_ls.setup({
-	debug = false,
-	sources = {
-		formatting.prettier.with({ extra_args = { "--single-quote", "--jsx-single-quote" } }), -- "--no-semi",
-		-- formatting.black,
-		formatting.autopep8.with({
-			extra_args = { "--indent-size=2", "--ignore=E121", "--ignore=E305" },
-		}),
-		formatting.stylua,
-	},
-	on_attach = function(client, bufnr)
-		if client.supports_method("textDocument/formatting") then
-			vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-			vim.api.nvim_create_autocmd("BufWritePre", {
-				group = augroup,
-				buffer = bufnr,
-				callback = function()
-					lsp_formatting(bufnr)
-				end,
-			})
-		end
-	end,
-})
+require("lspconfig.ui.windows").default_options = {
+	border = _border,
+}
 
 require("illuminate").configure({
 	filetypes_denylist = {
@@ -488,21 +478,27 @@ require("nvim-tree").setup({
 	-- },
 })
 
-require("indent_blankline").setup({
-	char = "┊",
-	bufname_exclude = { ".*.norg" },
-})
-
 require("Comment").setup({
 	toggler = { line = "<leader>/" },
 	opleader = { line = "<leader>/" },
 })
 
--- linefly config
-local highlight = vim.api.nvim_set_hl
-
-highlight(0, "LineflyNormal", { link = "DiffChange" })
-highlight(0, "LineflyInsert", { link = "WildMenu" })
-highlight(0, "LineflyVisual", { link = "IncSearch" })
-highlight(0, "LineflyCommand", { link = "WildMenu" })
-highlight(0, "LineflyReplace", { link = "ErrorMsg" })
+require("conform").setup({
+	format_on_save = {
+		timeout_ms = 500,
+		lsp_fallback = true,
+	},
+	formatters_by_ft = {
+		lua = { "stylua" },
+		python = { "autopep8", "isort" },
+		javascript = { "prettier" },
+		html = { "htmlbeautifier" },
+	},
+	formatters = { -- functioformatters = {
+		autopep8 = {
+			prepend_args = {
+				{ "--indent-size=2", "--ignore=E121", "--ignore=E305", "--ignore=E302" },
+			},
+		},
+	},
+})
